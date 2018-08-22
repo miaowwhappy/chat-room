@@ -16,193 +16,24 @@
 		})();
 	</script>
 	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-	<style>
-		*{
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-		html,body{
-			height: 100%;
-			margin: 0 auto;
-		}
-		.login-box{
-			background: #DDDDDD;
-			height: 100%;
-			padding-top: 1.5rem; 
-		}
-		.login-box h3{
-			font-size: 0.54rem;
-			text-align: center;
-		}
-		.login-box input[name='name']{
-			width: 6rem;
-			height: 1rem;
-			display: block;
-			outline: none;
-			font-size: 0.32rem;
-			margin: 0.5rem auto 0;
-		}
-		.login-box .loginBtn{
-			width: 6rem;
-			height: 1rem;
-			display: block;
-			margin: 0.4rem auto 0;
-			background: #459d36;
-			color: #fff;
-			font-size: 0.3rem;
-			outline: none;
-		}
-		.room-box{
-			height: 100%;
-			display: none;
-			flex-direction: column;
-		}
-		.room-box .top-title{
-			height: 1.1rem;
-			flex: none;
-			background: #000000;
-			color: #fff;
-			font-size: 0.4rem;
-			line-height: 1.1rem;
-			text-align: center;
-		}
-		.room-box .view{
-			flex: auto;
-			background: #EEEEEE;
-			overflow: auto;
-		}
-		.room-box .bottom-side{
-			height: 1.1rem;
-			flex: none;
-			display: flex;
-			border-bottom: 1px solid #DDDDDD;
-		}
-		.room-box .bottom-side input[name="send"]{
-			flex: auto;
-			outline: none;
-		}
-		.room-box .bottom-side .sendBtn{
-			flex: none;
-			width: 2rem;
-			background: #459d36;
-			outline: none;
-			font-size: 0.3rem;
-			color: #fff;
-			border: none;
-		}
-
-		.chat-bar .sys-msg{
-			text-align: center;
-			color: #fff;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			padding: 0.2rem 0;
-		}
-		.chat-bar .sys-msg span{
-			background: #A2A2A2;
-			display: inline-block;
-			font-size: 0.3rem;
-			padding: 0.1rem;
-			border-radius: 4px;
-		}
-		.chat-li{
-			display: flex;
-			padding: 0.1rem;
-		}
-		.chat-li>img{
-			width: 0.8rem;
-			height: 0.8rem;
-			flex: none;
-		}
-		.chat-li .message-box{
-			flex: none;
-			margin: 0 0.2rem;
-		}
-		.chat-li .message-box p{
-			font-size: 0.24rem;
-			line-height: 0.5rem;
-		}
-		.chat-li .message-box .msg{
-			background: #ffffff;
-			padding: 0.1rem 0.3rem;
-		    font-size: 0.32rem;
-		    border-radius: 4px;
-		    max-width: 6rem;
-		}
-		.chat-li .message-box .msg img{
-			width: 0.5rem;
-			vertical-align: middle;
-		}
-		.chat-li .message-box .img-box{
-			background: #ffffff;
-			max-width: 4rem;
-		}
-		.chat-li .message-box .img-box img{
-			width: 100%;
-			display: block;
-		}
-		.right-li{
-			flex-direction: row-reverse; 
-			align-items: center;
-			 
-		}
-		.right-li .message-box .msg{
-			background: #459d36;
-		}
-
-		.other-send{
-			height: 0.8rem;
-			flex: none;
-			display: flex;
-			border: 1px solid #DDDDDD;
-			align-items: center;
-		}
-		.other-send .img-click{
-			width: 0.5rem;
-			height: 0.5rem;
-			flex: none;
-			margin-left: 0.3rem;
-		}
-		.other-send .img-click img{
-			width: 100%;
-			display: block;
-		}
-		.other-send .pic-click{
-			position: relative;
-			overflow: hidden;
-		}
-		.other-send .pic-click input{
-			position: absolute;
-			left: 0;
-			top: 0;
-			opacity: 0;
-		}
-		.emoji-box{
-			flex: none;
-			flex-wrap: wrap;
-			justify-content: space-between;
-			display: none;
-		}
-		.emoji-box img{
-			display: block;
-			width: 0.6rem;
-			height: 0.6rem;
-		}
-		.emoji-box img:active{
-			background: #EEE;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="/static/index.css">
 </head>
 <body>
 	<div class="login-box">
 		<h3>用户登录</h3>
-		<input type="text" name="name" class="name">
+		<input type="text" name="name" class="name" placeholder="请输入登录用名">
 		<button class="loginBtn">登录</button>
 	</div>
+	<div class="menu">
+		<ul class="user-list">
+			
+		</ul>
+	</div>
 	<div class="room-box">
-		<div class="top-title">多人聊天室</div>
+		<div class="top-title">
+			聊天室在线人数（<span class="userNum"></span>）
+			<img src="/static/left.png" id="img">
+		</div>
 		<div class="view">
 			<div class="chat-bar">
 				
@@ -227,7 +58,91 @@
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	var w = $(".menu").width();
+	var flag = false;
+	var menuIsOpen = false;
+	var goBack = false;
 
+	$(".top-title").click(function(){
+		if(menuIsOpen){
+			menuClose()
+		}else{
+			menuOpen()
+		}	
+	})
+	$(".view").click(function(){
+		if(menuIsOpen){
+			menuClose()
+		}
+	})
+	function menuOpen(){
+		$(".menu").animate({"left": 0})
+		$(".room-box").animate({"left": w + "px"},function(){
+			menuIsOpen = true
+			$("#img").attr("src","/static/right.png")
+		})		
+		
+	}
+	function menuClose(){
+		$(".menu").animate({"left": -w + "px"})
+		$(".room-box").animate({"left": 0},function(){
+			$("#img").attr("src","/static/left.png")
+			menuIsOpen = false
+		})		
+	}
+
+
+	var startX = 0;
+	var startY = 0;
+	$("body").on("touchstart",function(e){
+		startX = e.targetTouches[0].clientX;
+		startY = e.targetTouches[0].clientY;
+		if((startX < 5 && $(".login-box").css("display") == "none") || menuIsOpen){
+			flag = true;
+		}	
+		
+		if(e.target.className == "menu" && menuIsOpen){
+			goBack = true;
+		}	
+	})	
+
+	$("body").on("touchmove",function(e){
+		if(!flag){
+			return
+		}			
+		var nowX = e.targetTouches[0].clientX;
+		var dis = nowX - startX;
+
+		if(goBack){
+			$(".menu").css({"left": (0 + dis > 0 ? 0 : dis) + "px"})
+			$(".room-box").css({"left": (w + dis > w ? w : w + dis) + "px"})
+		}else{
+			$(".menu").css({"left": (nowX - w < 0 ? nowX - w : 0) + "px"})
+			$(".room-box").css({"left": (nowX < w ? nowX : w) + "px"})
+		}
+		
+	})
+	$("body").on("touchend",function(e){
+		if(!flag){
+			return
+		}
+
+		var endX = e.changedTouches[0].clientX;
+		var scale = (w - endX) / w;
+
+		flag = false;
+		goBack = false;
+
+		if(scale < 0.2){
+			menuOpen&&menuOpen.call(this)
+		}else{
+			menuClose&&menuClose.call(this)
+		}
+		
+	})
+	
+</script>
 <script src="/static/socket.io.js"></script>
 <script>
 	var html = '';
@@ -246,9 +161,14 @@
 		$(".send").val($(".send").val()+"["+num+"]")
 		$(".emoji-box").css("display","none")
 	})
-	var socket = io.connect('http://47.75.71.222:9000/');
+	var socket = io.connect();
 	$(".loginBtn").click(function(){
 		var username = $(".name").val();
+		if(!username){
+			alert('请输入登录用名')
+			return
+		}
+		
 		socket.emit('login', username);				
 	})
 
@@ -272,6 +192,7 @@
 	socket.on('user_login_success',function(data){
 		$(".login-box").hide()
 		$(".room-box").css("display","flex")
+		displayUser(data.users)
 	})
 
 	socket.on('login_success',function(data){
@@ -279,19 +200,43 @@
 						<span>系统消息：${data.username}已加入群聊</span>
 					</div>`
 		$(".chat-bar").append(html)
+		displayUser(data.users)
 	})
 	socket.on('login_fail',function(msg){
 		alert("用户已存在")
 	})
-	socket.on('logout_success',function(msg){
+	socket.on('logout_success',function(data){
+		console.log(data)
 		var html = `<div class="sys-msg">
-						<span>缪文文提醒：${msg}已退出群聊</span>
+						<span>缪文文提醒：${data.user}已退出群聊</span>
 					</div>`
 		$(".chat-bar").append(html)
+		displayUser(data.users)
 	})
+
+	socket.on("logout",function(){
+		$(".login-box").show()
+		$(".room-box").hide()
+	})
+
+	function displayUser (users) {
+		var len = users.length;
+		$(".userNum").html(len)
+		var html = ""
+		for (var i = 0; i < len; i++) {
+			html += `<li>
+						<img src="/static/user.jpg">
+						<span>${users[i]}</span>
+					</li>`
+		}
+		$(".user-list").html(html)
+	}
 
 	$(".sendBtn").click(function(){
 		var val = $(".send").val();
+		if(!val){
+			return
+		}
 		var color = $("#color").val();
 		socket.emit('send', {val: val, color: color});
 		$(".send").val(''); 
@@ -361,11 +306,7 @@
 		$(".view").scrollTop($(".chat-bar").height())
 	})
 
-	socket.on("logout",function(){
-		console.log(1)
-		$(".login-box").show()
-		$(".room-box").hide()
-	})
+	
 
 
 	

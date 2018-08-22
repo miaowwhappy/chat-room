@@ -1,0 +1,260 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+html,body{
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	margin: 0 auto;
+	position: relative;
+}
+ul{
+	list-style: none;
+}
+.login-box{
+	background: #DDDDDD;
+	height: 100%;
+	padding-top: 1.5rem; 
+	/*display: none;*/
+}
+.login-box h3{
+	font-size: 0.54rem;
+	text-align: center;
+}
+.login-box input[name='name']{
+	width: 6rem;
+	height: 1rem;
+	display: block;
+	outline: none;
+	font-size: 0.32rem;
+	margin: 0.5rem auto 0;
+}
+.login-box .loginBtn{
+	width: 6rem;
+	height: 1rem;
+	display: block;
+	margin: 0.4rem auto 0;
+	background: #459d36;
+	color: #fff;
+	font-size: 0.3rem;
+	outline: none;
+}
+.room-box{
+	height: 100%;
+	width: 100%;
+	display: none;
+	flex-direction: column;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+.room-box .top-title{
+	height: 1.1rem;
+	flex: none;
+	background: #000000;
+	color: #fff;
+	font-size: 0.4rem;
+	line-height: 1.1rem;
+	text-align: center;
+	position: relative;
+}
+.room-box .top-title img{
+	position: absolute;
+	left: 0.5rem;
+	top: 0.3rem;
+	width: 0.5rem;
+}
+.room-box .view{
+	flex: auto;
+	background: #EEEEEE;
+	overflow: auto;
+}
+.room-box .bottom-side{
+	height: 1.1rem;
+	flex: none;
+	display: flex;
+	border-bottom: 1px solid #DDDDDD;
+}
+.room-box .bottom-side input[name="send"]{
+	flex: auto;
+	outline: none;
+}
+.room-box .bottom-side .sendBtn{
+	flex: none;
+	width: 2rem;
+	background: #459d36;
+	outline: none;
+	font-size: 0.3rem;
+	color: #fff;
+	border: none;
+}
+
+.chat-bar .sys-msg{
+	text-align: center;
+	color: #fff;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0.2rem 0;
+}
+.chat-bar .sys-msg span{
+	background: #A2A2A2;
+	display: inline-block;
+	font-size: 0.3rem;
+	padding: 0.1rem;
+	border-radius: 4px;
+}
+.chat-li{
+	display: flex;
+	padding: 0.1rem;
+}
+.chat-li>img{
+	width: 0.8rem;
+	height: 0.8rem;
+	flex: none;
+}
+.chat-li .message-box{
+	flex: none;
+	margin: 0 0.2rem;
+}
+.chat-li .message-box p{
+	font-size: 0.24rem;
+	line-height: 0.5rem;
+}
+.chat-li .message-box .msg{
+	background: #ffffff;
+	padding: 0.1rem 0.3rem;
+    font-size: 0.32rem;
+    border-radius: 4px;
+    max-width: 6rem;
+}
+.chat-li .message-box .msg img{
+	width: 0.5rem;
+	vertical-align: middle;
+}
+.chat-li .message-box .img-box{
+	background: #ffffff;
+	max-width: 4rem;
+}
+.chat-li .message-box .img-box img{
+	width: 100%;
+	display: block;
+}
+.right-li{
+	flex-direction: row-reverse; 
+	align-items: center;
+	 
+}
+.right-li .message-box .msg{
+	background: #459d36;
+}
+
+.other-send{
+	height: 0.8rem;
+	flex: none;
+	display: flex;
+	border: 1px solid #DDDDDD;
+	align-items: center;
+}
+.other-send .img-click{
+	width: 0.5rem;
+	height: 0.5rem;
+	flex: none;
+	margin-left: 0.3rem;
+}
+.other-send .img-click img{
+	width: 100%;
+	display: block;
+}
+.other-send .pic-click{
+	position: relative;
+	overflow: hidden;
+}
+.other-send .pic-click input{
+	position: absolute;
+	left: 0;
+	top: 0;
+	opacity: 0;
+}
+.emoji-box{
+	flex: none;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	display: none;
+}
+.emoji-box img{
+	display: block;
+	width: 0.6rem;
+	height: 0.6rem;
+}
+.emoji-box img:active{
+	background: #EEE;
+}
+
+
+
+.menu{
+	height: 100%;
+	width: 6rem;
+	position: absolute;
+	left: -6rem;
+	top: 0;
+	background: #DFDFDF;
+	z-index: 10;
+	overflow: auto;
+}
+.menu ul{
+	margin-top: 0.5rem;
+	margin-left: 0.5rem;
+}
+.menu ul li{
+	font-size: 0.45rem;
+	margin-bottom: 0.3rem;
+}
+.menu ul li img{
+	width: 0.8rem;
+	vertical-align: middle;
+}
+.menu ul li span{
+	vertical-align: middle;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
