@@ -246,7 +246,7 @@
 		$(".send").val($(".send").val()+"["+num+"]")
 		$(".emoji-box").css("display","none")
 	})
-	var socket = io.connect('http://localhost:8000');
+	var socket = io.connect('http://47.75.71.222:9000/');
 	$(".loginBtn").click(function(){
 		var username = $(".name").val();
 		socket.emit('login', username);				
