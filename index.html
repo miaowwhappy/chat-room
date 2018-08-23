@@ -96,13 +96,15 @@
 
 	$("#file").change(function(){
 		var file = this.files[0];
-		if(file.size/1024 > 200){ //大于200kb
+		if(file.size/1024 > 40){ //大于40kb
 			photoCompress(
 				file,
 				{
-					quality: 0.2,
+					quality: 1,
+					width: 300
 				},
 				function(base64){
+					console.log(base64.length / 1024) 
 					socket.emit('sendPic',{
 						img: base64
 					})

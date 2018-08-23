@@ -14,7 +14,7 @@ function photoCompress(file,obj,callback){
     ready.readAsDataURL(file);
     ready.onload=function(){
         var re=this.result;
-        canvasDataURL(re,w,callback)
+        canvasDataURL(re,obj,callback)
     }
 }
 function canvasDataURL(path, obj, callback){
@@ -27,7 +27,7 @@ function canvasDataURL(path, obj, callback){
             h = that.height,
             scale = w / h;
         w = obj.width || w;
-        h = obj.height || (w / scale);
+        h = (obj.width / scale) || (w / scale);
         var quality = 0.7;  // 默认图片质量为0.7
         //生成canvas
         var canvas = document.createElement('canvas');
@@ -40,12 +40,13 @@ function canvasDataURL(path, obj, callback){
         canvas.setAttributeNode(anw);
         canvas.setAttributeNode(anh);
         ctx.drawImage(that, 0, 0, w, h);
-        // 图像质量
+        // 图像质量 
         if(obj.quality && obj.quality <= 1 && obj.quality > 0){
             quality = obj.quality;
         }
         // quality值越小，所绘制出的图像越模糊
         var base64 = canvas.toDataURL('image/jpeg', quality);
+        console.log(base64)
         // 回调函数返回base64的值
         callback(base64);
     }
