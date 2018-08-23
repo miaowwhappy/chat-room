@@ -200,19 +200,34 @@
 
 	$("#file").change(function(){
 		var file = this.files[0];
-
-		photoCompress(
-			file,
-			{
-				quality: 0.6,
-			},
-			function(base64){
-				socket.emit('sendPic',{
-					img: base64
-				})
-				$("#file").val("")
+		if(file.size/1024 > 200){ //大于200kb
+			photoCompress(
+				file,
+				{
+					quality: 0.2,
+				},
+				function(base64){
+					socket.emit('sendPic',{
+						img: base64
+					})
+					$("#file").val("")
+				}
+			)
+		}else{
+			var reader = new FileReader();
+			reader.readAsDataURL(file)
+			reader.onerror = function(){
+				console.log('读取文件失败，请重试！')
 			}
-		)
+			reader.onload = function() {
+				var src = reader.result;
+				var img = new Image;
+				img.src = src 
+				
+			}
+		}
+
+		
 	})
 	socket.on('user_login_success',function(data){
 		$(".login-box").hide()
@@ -328,7 +343,13 @@
 					</div>
 				</div>`
 		$(".chat-bar").append(html)
-		$(".view").scrollTop($(".chat-bar").height())
+		//图片加载完再滚动条到底部
+		var image = new Image();
+		image.src = img;
+		image.onload = function(){
+			$(".view").scrollTop($(".chat-bar").height())
+		}
+		
 	})
 	socket.on("boradcastPic",function(data){
 		var html = `<div class="chat-li left-li">
@@ -343,8 +364,14 @@
 						</div>
 					</div>`;
 		$(".chat-bar").append(html)
-		$(".view").scrollTop($(".chat-bar").height())
+		var image = new Image();
+		image.src = data.img;
+		image.onload = function(){
+			$(".view").scrollTop($(".chat-bar").height())
+		}
 	})
+
+	//图片太多没返回会断	
 	
 </script>
 </html>
