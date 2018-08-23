@@ -44,7 +44,7 @@ ul{
 	background: #DDDDDD;
 	height: 100%;
 	padding-top: 1.5rem; 
-	display: none;
+	/*display: none;*/
 }
 .login-box h3{
 	font-size: 0.54rem;
@@ -67,9 +67,6 @@ ul{
 	color: #fff;
 	font-size: 0.3rem;
 	outline: none;
-}
-.up-img{
-	height: 100%;
 }
 .room-box{
 	height: 100%;
