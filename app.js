@@ -35,9 +35,9 @@ io.on('connection', function (socket) {
   		var index = users.indexOf(user)
   		users.splice(index, 1)
   		io.sockets.emit('logout_success',{user: user, users: users})
-
+		socket.emit('logout',{user: user, users: users})
   	}	
-  	socket.emit('logout',{user: user, users: users})
+  	
   })
 
   socket.on("send", function(data){
