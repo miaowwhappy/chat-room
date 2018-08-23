@@ -34,6 +34,7 @@ io.on('connection', function (socket) {
   	if(user){
   		var index = users.indexOf(user)
   		users.splice(index, 1)
+  		user = null
   		io.sockets.emit('logout_success',{user: user, users: users})
 		socket.emit('logout',{user: user, users: users})
   	}	
@@ -45,11 +46,8 @@ io.on('connection', function (socket) {
   		data.username = user
 		socket.emit("send_success", data);
 		socket.broadcast.emit("boradcast",data)
-  	} else {
-		
+  	} else {		
 		var index = users.indexOf(user);
-  		users.splice(index, 1);
-  		socket.emit("user_logout", data);
 	} 	
   })
   socket.on("sendPic", function(data){
