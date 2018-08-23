@@ -147,7 +147,6 @@
 		alert("用户已存在")
 	})
 	socket.on('logout_success',function(data){
-		console.log(data)
 		var html = `<div class="sys-msg">
 						<span>缪文文提醒：${data.user}已退出群聊</span>
 					</div>`
@@ -190,9 +189,6 @@
 	}
 
 	$(".sendBtn").click(function(){
-		if(!name){
-			location.reload()
-		}
 		var val = $(".send").val();
 		if(!val){
 			return
@@ -207,6 +203,10 @@
 	 	$(".font").css("color",color);
 	 })
 	
+	socket.on("user_logout",function(){
+		$(".login-box").show()
+		$(".room-box").hide()
+	})
 	socket.on("send_success",function(data){
 		var newVal = data.val.replace(/\[(\d+)\]/g,function(match,p1){
 			return '<img src="/static/emoji/emoji ('+p1+').png">'

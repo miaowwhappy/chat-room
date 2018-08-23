@@ -41,13 +41,18 @@ io.on('connection', function (socket) {
   })
 
   socket.on("send", function(data){
-	data.username = user
-	socket.emit("send_success", data);
-	socket.broadcast.emit("boradcast",data)  	
+  	if(data.username){
+  		data.username = user
+		socket.emit("send_success", data);
+		socket.broadcast.emit("boradcast",data)
+  	}else{
+		socket.emit("user_logout", data);
+	} 	
   })
   socket.on("sendPic", function(data){
   	console.log(data.img)
   	socket.emit("sendPic_success", data.img);
   	socket.broadcast.emit("boradcastPic",{img:data.img,username:user})
   })
+  	}
 }); 
