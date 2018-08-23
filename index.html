@@ -70,6 +70,7 @@
 	var flag = false;
 	var menuIsOpen = false;
 	var goBack = false;
+	var name = "";
 
 	$(".top-title").click(function(){
 		if(menuIsOpen){
@@ -233,6 +234,7 @@
 	socket.on('user_login_success',function(data){
 		$(".login-box").hide()
 		$(".room-box").css("display","flex")
+		name = $(".name").val();
 		displayUser(data)
 	})
 
@@ -243,6 +245,7 @@
 		$(".chat-bar").append(html)
 		$(".view").scrollTop($(".chat-bar").height())
 		displayUser(data)
+
 	})
 	socket.on('login_fail',function(msg){
 		alert("用户已存在")
@@ -254,7 +257,10 @@
 					</div>`
 		$(".chat-bar").append(html)
 		$(".view").scrollTop($(".chat-bar").height())
-		displayUser(data)
+		if(data.user == name){
+			$(".login-box").show()
+			$(".room-box").hide()
+		}
 	})
 
 	socket.on("logout",function(){
@@ -263,12 +269,12 @@
 	})
 
 	function displayUser (data) {
-		var {users, username} = data;
+		var {users} = data;
 		var len = users.length;
 		$(".userNum").html(len);
 		var html = "";
 		for (var i = 0; i < len; i++) {
-			if(users[i] == username){
+			if(users[i] == name){
 				html += `<li>
 							<img src="/static/user.jpg">
 							<span>${users[i]}</span>
