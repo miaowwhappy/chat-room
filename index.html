@@ -221,9 +221,10 @@
 			}
 			reader.onload = function() {
 				var src = reader.result;
-				var img = new Image;
-				img.src = src 
-				
+				socket.emit('sendPic',{
+					img: src
+				})
+				$("#file").val("")
 			}
 		}
 
