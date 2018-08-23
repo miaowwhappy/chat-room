@@ -46,8 +46,18 @@ function canvasDataURL(path, obj, callback){
         }
         // quality值越小，所绘制出的图像越模糊
         var base64 = canvas.toDataURL('image/jpeg', quality);
-        console.log(base64)
+        //var bolb = convertBase64UrlToBlob(base64)
         // 回调函数返回base64的值
+        //console.log(bolb)
         callback(base64);
     }
 }
+function convertBase64UrlToBlob(urlData){
+    var arr = urlData.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type:mime});
+}
+
