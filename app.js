@@ -34,7 +34,7 @@ io.on('connection', function (socket) {
   	if(user){
   		var index = users.indexOf(user)
   		users.splice(index, 1)
-  		user = null
+  		user = null;
   		io.sockets.emit('logout_success',{user: user, users: users})
 		socket.emit('logout',{user: user, users: users})
   	}	
@@ -42,18 +42,22 @@ io.on('connection', function (socket) {
   })
 
   socket.on("send", function(data){
-  	if (data.username) {
+  	if (user) {
   		data.username = user
 		socket.emit("send_success", data);
 		socket.broadcast.emit("boradcast",data)
   	} else {		
-		var index = users.indexOf(user);
+		socket.emit("user_logout", data);
 	} 	
   })
   socket.on("sendPic", function(data){
-  	console.log(data.img)
-  	socket.emit("sendPic_success", data.img);
-  	socket.broadcast.emit("boradcastPic",{img:data.img,username:user})
+  	if(user){
+  		socket.emit("sendPic_success", data.img);
+  		socket.broadcast.emit("boradcastPic",{img:data.img,username:user})
+  	}else{		
+		socket.emit("user_logout", data);
+	}
+  	
   })
 
 }); 
