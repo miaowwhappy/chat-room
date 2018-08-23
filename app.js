@@ -33,10 +33,10 @@ io.on('connection', function (socket) {
   socket.on("disconnect", function(){
   	if(user){
   		var index = users.indexOf(user)
-  		users.splice(index, 1)
-  		user = null;
+  		users.splice(index, 1) 		
   		io.sockets.emit('logout_success',{user: user, users: users})
 		socket.emit('logout',{user: user, users: users})
+		user = null;
   	}	
   	
   })
