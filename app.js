@@ -46,7 +46,10 @@ io.on('connection', function (socket) {
 		socket.emit("send_success", data);
 		socket.broadcast.emit("boradcast",data)
   	} else {
-		socket.emit("user_logout", data);
+		
+		var index = users.indexOf(user);
+  		users.splice(index, 1);
+  		socket.emit("user_logout", data);
 	} 	
   })
   socket.on("sendPic", function(data){
