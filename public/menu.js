@@ -2,7 +2,7 @@ var w = $(".menu").width();
 var flag = false;
 var menuIsOpen = false;
 var goBack = false;
-var name = "";
+
 
 $(".top-title").click(function(){
 	if(menuIsOpen){

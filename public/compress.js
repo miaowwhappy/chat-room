@@ -17,6 +17,7 @@ function photoCompress(file,obj,callback){
         canvasDataURL(re,obj,callback)
     }
 }
+
 function canvasDataURL(path, obj, callback){
     var img = new Image();
     img.src = path;
