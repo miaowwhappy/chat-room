@@ -270,7 +270,7 @@ ul{
 }
 @keyframes objScale{
 	from{
-		transform: scale(0.1)
+		transform: scale(0);
 	}
 	to{
 		transform: scale(1)
@@ -286,8 +286,7 @@ ul{
 		transform: scale(1)
 	}
 	to{
-		transform: scale(0.1);
-		display: none;
+		transform: scale(0);
 	}
 }
 

@@ -355,7 +355,10 @@ $(".user-list").on("click","li",function(){
 	var id = $(this).attr("data-id");
 
 	if(username != name){
-		$(".one2one-box").css({"display":"flex","transform": "scale(0.01)"}).attr("data-id",id).addClass('scale');
+		$(".one2one-box").css({"display":"flex"}).attr("data-id",id).addClass('scale');
+		setTimeout(function(){
+			$(".one2one-box").removeClass("scale")
+		},500)
 		$(".one2one-top-title span").text("与"+username+"聊天")
 
 		if(dialogObj[id]){
@@ -368,7 +371,10 @@ $(".user-list").on("click","li",function(){
 })
 
 $(".one2one-top-title i").click(function(){
-	$(".one2one-box").removeClass("scale").addClass("scaleBack").hide();
+	$(".one2one-box").removeClass("scale").addClass("scaleBack");
+	setTimeout(function(){
+		$(".one2one-box").css("display","none").removeClass("scaleBack")
+	},500)
 })
 
 //发送消息
