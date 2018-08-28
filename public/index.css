@@ -10,7 +10,7 @@ html,body{
 	margin: 0 auto;
 	position: relative;
 }
-.page{
+.chat-page{
 	height: 100%;
 	width: 100%;
 	position: relative;
@@ -20,11 +20,11 @@ ul{
 }
 @font-face {
   font-family: 'iconfont';  /* project id 647646 */
-  src: url('//at.alicdn.com/t/font_647646_nbjs1mlrksa.eot');
-  src: url('//at.alicdn.com/t/font_647646_nbjs1mlrksa.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_647646_nbjs1mlrksa.woff') format('woff'),
-  url('//at.alicdn.com/t/font_647646_nbjs1mlrksa.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_647646_nbjs1mlrksa.svg#minaidai-pc') format('svg');
+  src: url('//at.alicdn.com/t/font_647646_snruh1x2mw.eot');
+  src: url('//at.alicdn.com/t/font_647646_snruh1x2mw.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_647646_snruh1x2mw.woff') format('woff'),
+  url('//at.alicdn.com/t/font_647646_snruh1x2mw.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_647646_snruh1x2mw.svg#minaidai-pc') format('svg');
 }
 .iconfont{
     font-family:"iconfont" !important;

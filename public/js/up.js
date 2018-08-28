@@ -1,221 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Document</title>
-<meta name="viewport" content="width=device-width,user-scalable=no" />
-<script type="text/javascript" src="/static/miao.js"></script>
-<style type="text/css">
-body,
-html {
-	height: 100%;
-	margin: 0;
-}
-#wrap {
-	position: relative;
-	height: 100%;
-	overflow: hidden;
-}	
-header {
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 60px;
-	background: #393a3f;
-	font: 20px/60px "宋体";
-	text-align: center;
-	color: #fff;
-}
-.page {
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	transition: .5s;
-	background: #000;
-}
-.fileBtn {
-	box-sizing: border-box;
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	width: 200px;
-	height: 50px;
-	font: 20px/50px "宋体";
-	text-align: center;
-	border: 1px solid #179e16;
-	border-radius: 5px;
-	-webkit-transform: translate(-50%, -50%);
-	transform: translate(-50%, -50%);
-	background: #1aad19;
-	color: #fff;
-
-	
-}
-input {
-	display: none;
-}
-.pageHide {
-	-webkit-transform: translateY(100%);
-	transform: translateY(100%);
-}
-.con {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 60px;
-	bottom: 0;
-}
-canvas {
-	display: block;
-}
-#img {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	/* margin: -100px 0 0 -100px; */
-	-webkit-transform: translate(-50%, -50%);
-	transform: translate(-50%, -50%);
-	width: 200px;
-	height: 200px;
-	/* background: url('loading.gif') no-repeat center center; */
-}
-#saveBtn {
-	position: absolute;
-	right: 5px;
-	top: 10px;
-	width: 70px;
-	font: 14px/30px "宋体";
-	text-align: center;
-	background: #1aad19;
-	text-decoration: none;
-	color: #fff;
-	border: 1px solid #179e16;
-	border-radius: 5px;
-}
-#select {
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 200px;
-	height: 200px;
-	border: 1px solid #6af7d7;
-	background: rgba(106, 247, 215, .1);
-}
-#select span {
-	position: absolute;
-	box-sizing: border-box;
-}
-#select .top {
-	top: -2px;
-	left: 0;
-	width: 100%;
-	height: 20px;
-	border-top: 4px solid transparent;
-	/*#6af7d7*/
-}
-#select .bottom {
-	bottom: -2px;
-	left: 0;
-	width: 100%;
-	height: 20px;
-	border-bottom: 4px solid transparent;
-	/*#6af7d7*/
-}
-#select .left {
-	top: 0;
-	left: -2px;
-	height: 100%;
-	width: 20px;
-	border-left: 4px solid transparent;
-	/*#6af7d7*/
-}
-#select .right {
-	top: 0px;
-	right: -2px;
-	height: 100%;
-	width: 20px;
-	border-right: 4px solid transparent;
-	/*#6af7d7*/
-}
-#select .left-top {
-	top: -2px;
-	left: -2px;
-	height: 30px;
-	width: 30px;
-	border-top: 4px solid #6af7d7;
-	border-left: 4px solid #6af7d7;
-	/*#6af7d7*/
-}
-#select .right-top {
-	top: -2px;
-	right: -2px;
-	height: 30px;
-	width: 30px;
-	border-top: 4px solid #6af7d7;
-	border-right: 4px solid #6af7d7;
-	/*#6af7d7*/
-}
-#select .left-bottom {
-	bottom: -2px;
-	left: -2px;
-	height: 30px;
-	width: 30px;
-	border-bottom: 4px solid #6af7d7;
-	border-left: 4px solid #6af7d7;
-	/*#6af7d7*/
-}
-#select .right-bottom {
-	bottom: -2px;
-	right: -2px;
-	height: 30px;
-	width: 30px;
-	border-bottom: 4px solid #6af7d7;
-	border-right: 4px solid #6af7d7;
-	/*#6af7d7*/
-}
-</style>
-</head>
-<body>
-<div id="wrap">
-	<section class="page">
-		<header>
-			图片上传裁切
-		</header>
-		<label class="fileBtn">
-			请选择图片上传
-			<input type="file" id="file" accept="image/*">
-		</label>
-	</section>
-	<section class="page pageHide">
-		<header>
-			图片编辑 <a href="javascript:;" class="btn" id="saveBtn">保存</a>
-		</header>
-		<div class="con">
-			<canvas id="c"></canvas>
-			<div id="select">
-				<!-- <span class="top"></span>
-				<span class="right"></span>
-				<span class="bottom"></span>
-				<span class="left"></span> -->
-				<span class="left-top"></span>
-				<span class="left-bottom"></span>
-				<span class="right-top"></span>
-				<span class="right-bottom"></span>
-			</div>
-		</div>
-	</section>
-	<section class="page pageHide">
-		<header>
-			长按保存图片
-		</header>
-		<canvas id="c2"></canvas>
-		<img src="" id="img">
-	</section>
-</div>
-<script type="text/javascript">
 /* 阻止整个页面的回弹 */
 (function(){
 	var wrap = document.querySelector('#wrap');
@@ -226,22 +8,26 @@ canvas {
 
 /* 文件上传 */
 (function(){
-	var file = document.querySelector('#file');
+	var upFile = document.querySelector('#upFile');
 	var imgFile = null;
+	upFile.onclick = function(){
+		upFile.style.value = "";
+	}
 	var maxSize = 10*1024*1024;//10M
-	file.onchange = function(){
+	upFile.onchange = function(){
 		/*console.log(this.files[0]);*/
 		imgFile = this.files[0];
 		if(imgFile.size >maxSize){
 			alert("文件尺寸太大");
 			return;
 		}
-		loadImg(imgFile);
+		loadImg(imgFile);		
 	};
 })();	
 /* 渲染图片 */
 function loadImg(imgFile){
-	var page = document.querySelectorAll('.page')[1];
+	var page = document.querySelectorAll('.page')[0];
+	var chatPage = document.querySelector('.chat-page')
 	var con = document.querySelector('.con');
 	var c = document.querySelector('#c');
 	var newImage = new Image();
@@ -255,11 +41,15 @@ function loadImg(imgFile){
 	var imgW = 0;
 	var imgH = 0;
 	var isDrag = 0;
+
+	var wrap = document.querySelector('#wrap');
+	wrap.style.display = "block";
+	chatPage.style.display = "none";
 	page.className = "page";
+
 	c.width = c.parentNode.clientWidth;
 	c.height = c.parentNode.clientHeight;
 	newImage.onload = function(){
-		//console.log("图片加载完了");
 		var isResize = false;
 		imgW = this.width;
 		imgH = this.height;
@@ -611,7 +401,6 @@ function loadImg(imgFile){
 	};
 	reader.readAsDataURL(imgFile);
 }
-
 /* 点击保存	*/
 (function(){
 	var saveBtn = document.querySelector('#saveBtn');
@@ -620,8 +409,8 @@ function loadImg(imgFile){
 	var select = document.querySelector('#select');
 	var c2 = document.querySelector('#c2');
 	var cxt2 = c2.getContext("2d");
-	var page3 = document.querySelectorAll('.page')[2];
-	var img = document.querySelector('#img');
+	var page3 = document.querySelectorAll('.page')[1];
+	var img = document.querySelector('#img2');
 	tap(saveBtn,function(){
 		var x = css(select,"translateX");
 		var y = css(select,"translateY");
@@ -634,11 +423,32 @@ function loadImg(imgFile){
 		img.style.width = w + "px";
 		img.style.height = h + "px";
 		img.src = c2.toDataURL("image/png");
+		avatarData = c2.toDataURL("image/png");
 		c2.style.display = "none";
 		page3.className = "page";
 	});
-})();
 
+	$("#choose").click(function(){
+		$("#wrap").hide();
+		$(".chat-page").show();
+		$(".avatar img").attr('src',avatarData);
+		$(".page").eq(0).addClass("pageHide")
+		$(".page").eq(1).addClass("pageHide")
+		$("#upFile").val("");
+	})
+	$("#back2").click(function(){
+		$(".page").eq(1).addClass("pageHide")
+	})
+	$("#back").click(function(){
+		$(".page").eq(0).addClass("pageHide")
+		setTimeout(function(){
+			$(".chat-page").show()
+			$("#wrap").hide()
+		},500)
+		
+	})
+	
+})();
 /* 单指拖拽 */
 /*
 init:{
@@ -683,6 +493,3 @@ function drag(init){
 		}
 	});
 }
-</script>
-</body>
-</html>

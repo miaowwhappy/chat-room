@@ -26,7 +26,8 @@ io.on('connection', function (socket) {
   var user = null;
   /*{
   	username: '',
-  	id: ''
+  	id: '',
+    avaterData: ''
   }*/
 
   socket.on('login',function(data){

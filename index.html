@@ -8,20 +8,27 @@
 		(function(){
 			var html = document.documentElement;
 			var hWidth = html.getBoundingClientRect().width;
-			if(hWidth >= 500){
-				document.documentElement.style.width = "500px"
-				hWidth = 500
+			if(hWidth >= 540){
+				document.documentElement.style.width = "540px"
+				hWidth = 540
 			}
 			html.style.fontSize = (hWidth / 750) * 100 + "px";
 		})();
 	</script>
 	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="/static/index.css">
+	<link rel="stylesheet" type="text/css" href="/static/up.css">
+	<script type="text/javascript" src="/static/js/miao.js"></script>
+
 </head>
 <body>
-<div class="page">
+<div class="chat-page">
 	<div class="login-box">
 		<h3>用户登录</h3>
+		<div class='avatar'>
+			<img src="/static/user.jpg">
+			<input type="file" id="upFile">			
+		</div>
 		<input type="text" name="name" class="name" placeholder="请输入登录用名">
 		<button class="loginBtn">登录</button>
 	</div>
@@ -97,11 +104,39 @@
 		</div>
 	</div>
 </div>
+<div id="wrap">
+	<section class="page pageHide">
+		<header>
+			<i class="iconfont back" id="back">&#xe63b;</i>
+			图片编辑 <a href="javascript:;" class="btn" id="saveBtn">保存</a>
+		</header>
+		<div class="con">
+			<canvas id="c"></canvas>
+			<div id="select">
+				<span class="left-top"></span>
+				<span class="left-bottom"></span>
+				<span class="right-top"></span>
+				<span class="right-bottom"></span>
+			</div>
+		</div>
+	</section>
+	<section class="page pageHide">
+		<header>
+			<i class="iconfont back" id="back2">&#xe63b;</i>
+			设置头像
+			<a href="javascript:;" class="btn" id="choose">设为头像</a>
+		</header>
+		<canvas id="c2"></canvas>
+		<img src="" id="img2">
+	</section>
+</div>
 </body>
-<script src="/static/socket.io.js"></script>
-<script src="/static/index.js"></script>
-<script src="/static/compress.js"></script>
-<script src="/static/menu.js"></script>
+<script src="/static/js/up.js"></script>
+<script src="/static/js/socket.io.js"></script>
+<script src="/static/js/index.js"></script>
+<script src="/static/js/compress.js"></script>
+<script src="/static/js/menu.js"></script>
+
 <script>
 var roomDia = [];
 
@@ -109,6 +144,7 @@ var socket = io.connect();
 var userId = '';
 var name = "";
 var dialogObj = {};
+var avatarData = '/static/user.jpg';
 
 //登录
 $(".loginBtn").click(function(){
@@ -119,7 +155,7 @@ $(".loginBtn").click(function(){
 	}
 	userId = socket.id;
 
-	socket.emit('login', {username: name,id: socket.id});				
+	socket.emit('login', {username: name,id: socket.id, avatarData});				
 })
 //发送图片
 $("#file").change(function(){
@@ -149,7 +185,8 @@ $("#file").change(function(){
 
 	function emitPic(src) {
 		socket.emit('sendPic',{
-			img: src
+			img: src,
+			avatarData
 		})
 		$("#file").val("")
 	}
@@ -225,7 +262,7 @@ function displayUser (data) {
 	for (var i = 0; i < len; i++) {
 		if(users[i].username == name){
 			html += `<li data-id="${users[i].id}">
-						<img src="/static/user.jpg">
+						<img src="${users[i].avatarData}">
 						<span class="name">${users[i].username}</span>
 						<span class="dot"></span>
 					</li>`
@@ -235,7 +272,7 @@ function displayUser (data) {
 		if(dialogObj[users[i].id]&&dialogObj[users[i].id].unread > 0){
 
 			html += `<li data-id="${users[i].id}">
-				<img src="/static/user.jpg">
+				<img src="${users[i].avatarData}">
 				<span class="name">${users[i].username}</span>
 				<span class="num ico">
 					<i class="iconfont">&#xe631;</i>
@@ -244,7 +281,7 @@ function displayUser (data) {
 			</li>`
 		}else{
 			html += `<li data-id="${users[i].id}">
-					<img src="/static/user.jpg">
+					<img src="${users[i].avatarData}">
 					<span class="name">${users[i].username}</span>
 				</li>`
 		}
@@ -255,10 +292,11 @@ function displayUser (data) {
 
 function createTextLi(data,pos) {
 	if(data.img){
+		console.log(data)
 		if(pos === 'right'){
 			
 			return `<div class="chat-li right-li">
-						<img src="/static/user.jpg">
+						<img src="${data.avatarData}">
 						<div class="message-box">
 							<div class="img-box">
 								<img src="${data.img}">
@@ -267,7 +305,7 @@ function createTextLi(data,pos) {
 					</div>`
 		}else if(pos === 'left'){
 			return `<div class="chat-li left-li">
-						<img src="/static/user.jpg">
+						<img src="${data.avatarData}">
 						<div class="message-box">
 							<p>${data.username}</p>
 							<div class="message-box">
@@ -286,7 +324,7 @@ function createTextLi(data,pos) {
 			
 			
 			return `<div class="chat-li right-li">
-						<img src="/static/user.jpg">
+						<img src="${data.avatarData}">
 						<div class="message-box">
 							<div class="msg" style="color:${data.color}">
 								${newVal}
@@ -295,7 +333,7 @@ function createTextLi(data,pos) {
 					</div>`
 		}else if(pos === 'left'){
 			return `<div class="chat-li left-li">
-						<img src="/static/user.jpg">
+						<img src="${data.avatarData}">
 						<div class="message-box">
 							<p>${data.username}</p>
 							<div class="msg" style="color:${data.color}">
@@ -331,7 +369,7 @@ $(".sendBtn").click(function(){
 		return
 	}
 	var color = $("#color").val();		
-	socket.emit('send', {val: val, color: color});
+	socket.emit('send', {val: val, color: color, avatarData: avatarData});
 	$(".send").val(''); 
 
 })
@@ -357,6 +395,7 @@ socket.on("boradcast",function(data){
 //接收自己发送的图片		
 socket.on("sendPic_success",function(data){
 	var html = createTextLi(data,'right');
+
 	roomDia.push(html);
 
 	$(".chat-bar").html(roomDia.join(''))
@@ -431,7 +470,7 @@ $(".one2one-sendBtn").click(function(){
   
 	var color = $("#one2one-color").val();	
 	var id = $(".one2one-box").attr("data-id");	
-	socket.emit('one2one_send', {val, color, id});
+	socket.emit('one2one_send', {val, color, id, avatarData});
 	$(".one2one-send").val(''); 
 
 })
@@ -504,7 +543,8 @@ $("#one2one-file").change(function(){
 	function emitPic(src) {
 		socket.emit('one2one_sendPic',{
 			img: src,
-			id: id
+			id: id,
+			avatarData
 		})
 		$("#one2one-file").val("")
 	}	
