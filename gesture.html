@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>Document</title>
+	<style type="text/css">
+		#box{
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			margin: -100px 0 0 -100px;
+			width: 200px;
+			height: 200px;
+			background: red;
+			font-size: 20px;
+			color: #fff;
+		}
+	</style>
+</head>
+<body>
+	<div id="box"></div>
+</body>
+<script type="text/javascript" src="/static/miao.js"></script>
+<script type="text/javascript">
+document.addEventListener('touchstart', function(e){
+	e.preventDefault();
+})
+;(function(){
+	var box = document.querySelector("#box");
+	var startRotate = 0;
+	var startScale = 1;
+	css(box, "scale", 1);
+	css(box, "rotate", 0);
+	gesture({
+		el: box,
+		start: function(e){
+			startScale = css(box, "scale")
+			startRotate = css(box, "rotate")
+			this.style.background  = 'blue'
+		},
+		change: function(e){
+			css(this,"scale",e.scale*startScale)
+			css(this,"rotate",e.rotation+startRotate)
+		},
+		end: function(){
+			this.style.background = "red"
+		}
+	})
+
+})()
+/*
+	init:{
+		el: 要添加事件的元素，
+		start: 摁下时 要操作的事件（gesturestart）,手指触碰元素时在屏幕上有两根或两根以上手指
+		change: 手指移动时的回调（gesturechange）function(e){
+			当触发了gesturestart,两根手指的发生变化
+			e.scale, //在change时，手指之间的距离和start时手指之间距离的比值
+			e.rotation //在change时和start时，手指旋转角度的差值
+		},
+		end: 多指触碰结束的回调（gestureend）
+	}
+
+	atan2 方位角 x正方向夹角
+*/
+</script>
+</html>
+
+
+
+
+
+
+
+
+

@@ -34,6 +34,10 @@
 		<div class="top-title">
 			聊天室在线人数（<span class="userNum"></span>）
 			<img src="/static/left.png" id="img">
+			<span class="msg-num ico">
+				<i class="iconfont">&#xe631;</i>
+				<span>2</span>
+			</span>
 		</div>
 		<div class="view">
 			<div class="chat-bar">
@@ -63,7 +67,7 @@
 	</div>
 	<div class="one2one-box" data-id="">
 		<div class="one2one-top-title">
-			<span></span>
+			<span class="text"></span>
 			<i class="iconfont">&#xe6d3;</i>
 		</div>
 		<div class="one2one-view">
@@ -104,7 +108,6 @@ var roomDia = [];
 var socket = io.connect();
 var userId = '';
 var name = "";
-var usersList = [];
 var dialogObj = {};
 
 //登录
@@ -199,12 +202,16 @@ socket.on("logout",function(){
 	//貌似不会走这步
 	$(".login-box").show()
 	$(".room-box").hide()
+	$(".one2one-box").hide()
+	$(".menu").hide()
 	name = null
 })
 //？
 socket.on("user_logout",function(){
 	$(".login-box").show()
 	$(".room-box").hide()
+	$(".one2one-box").hide()
+	$(".menu").hide()
 	name = null
 })
 
@@ -212,12 +219,10 @@ socket.on("user_logout",function(){
 
 function displayUser (data) {
 	var {users} = data;
-	usersList = users; 
 	var len = users.length;
 	$(".userNum").html(len);
 	var html = "";
 	for (var i = 0; i < len; i++) {
-		users[i].dialog = [];
 		if(users[i].username == name){
 			html += `<li data-id="${users[i].id}">
 						<img src="/static/user.jpg">
@@ -226,10 +231,24 @@ function displayUser (data) {
 					</li>`
 			continue
 		}
-		html += `<li data-id="${users[i].id}">
+
+		if(dialogObj[users[i].id]&&dialogObj[users[i].id].unread > 0){
+
+			html += `<li data-id="${users[i].id}">
+				<img src="/static/user.jpg">
+				<span class="name">${users[i].username}</span>
+				<span class="num ico">
+					<i class="iconfont">&#xe631;</i>
+					<span>${dialogObj[users[i].id].unread}</span>
+				</span>
+			</li>`
+		}else{
+			html += `<li data-id="${users[i].id}">
 					<img src="/static/user.jpg">
 					<span class="name">${users[i].username}</span>
 				</li>`
+		}
+		
 	}
 	$(".user-list").html(html)
 }
@@ -287,7 +306,22 @@ function createTextLi(data,pos) {
 		}
 	}
 }
+//提示消息
+function msgNum(){
+	var len = 0;
+	for(key in dialogObj){
+		if(dialogObj[key].unread){
+			len += dialogObj[key].unread
+		}
+	}
 
+	if(len > 0){
+		$(".msg-num").show();
+		$(".msg-num span").text(len)
+	}else{
+		$(".msg-num").hide();
+	}
+}
 
 
 //发送消息
@@ -338,7 +372,7 @@ socket.on("sendPic_success",function(data){
 socket.on("boradcastPic",function(data){
 	var html = createTextLi(data,'left');
 	roomDia.push(html);
-
+	
 	$(".chat-bar").html(roomDia.join(''));
 	var image = new Image();
 	image.src = data.img;
@@ -359,22 +393,33 @@ $(".user-list").on("click","li",function(){
 		setTimeout(function(){
 			$(".one2one-box").removeClass("scale")
 		},500)
-		$(".one2one-top-title span").text("与"+username+"聊天")
+		$(".one2one-top-title .text").text("与"+username+"聊天")
 
 		if(dialogObj[id]){
-			$(".one2one-chat-bar").html(dialogObj[id].join(""))
+			$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
 		}else{
 			$(".one2one-chat-bar").html("")
 		}
 		
 	}
 })
-
+//关闭个人聊天窗口
 $(".one2one-top-title i").click(function(){
 	$(".one2one-box").removeClass("scale").addClass("scaleBack");
+
 	setTimeout(function(){
 		$(".one2one-box").css("display","none").removeClass("scaleBack")
 	},500)
+
+	var id = $(".one2one-box").attr("data-id");
+	if(dialogObj[id]){
+		dialogObj[id].unread = 0
+		$(".user-list li[data-id="+id+"]").find(".num").remove()
+	}
+
+	msgNum();
+
+	
 })
 
 //发送消息
@@ -398,12 +443,14 @@ socket.on("one2one_send_success",function(data){
 
 	var id = data.id;
 	if(dialogObj[id]){
-		dialogObj[id].push(html)
+		dialogObj[id].dialog.push(html)
 	}else{
-		dialogObj[id] = [];
-		dialogObj[id].push(html)
+		dialogObj[id] = {};
+		dialogObj[id].unread = 0;
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
 	}
-	$(".one2one-chat-bar").html(dialogObj[id].join(""))
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
 	$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
 })
 //接收one2one发送的消息
@@ -412,13 +459,18 @@ socket.on("receive_message",function(data){
 	//roomDia.push(html);
 	var id = data.userId;	
 	if(dialogObj[id]){
-		dialogObj[id].push(html)
+		dialogObj[id].dialog.push(html)
+		dialogObj[id].unread += 1;
 	}else{
-		dialogObj[id] = [];
-		dialogObj[id].push(html)
+		dialogObj[id] = {};
+		dialogObj[id].unread = 1;
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
 	}
-	$(".one2one-chat-bar").html(dialogObj[id].join(""))
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
 	$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
+	displayUser(data);
+	msgNum();
 })
 
 //发送图片
@@ -465,12 +517,13 @@ socket.on("one2one_sendPic_success",function(data){
 
 	var id = data.id;
 	if(dialogObj[id]){
-		dialogObj[id].push(html)
+		dialogObj[id].dialog.push(html)
 	}else{
-		dialogObj[id] = [];
-		dialogObj[id].push(html)
+		dialogObj[id] = {};
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
 	}
-	$(".one2one-chat-bar").html(dialogObj[id].join(""))
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
 
 	//图片加载完再滚动条到底部
 	var image = new Image();
@@ -486,17 +539,22 @@ socket.on("receive_pic",function(data){
 
 	var id = data.userId;	
 	if(dialogObj[id]){
-		dialogObj[id].push(html)
+		dialogObj[id].dialog.push(html)
+		dialogObj[id].unread += 1;
 	}else{
-		dialogObj[id] = [];
-		dialogObj[id].push(html)
+		dialogObj[id] = {};
+		dialogObj[id].unread = 1;
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
 	}
-	$(".one2one-chat-bar").html(dialogObj[id].join(""))
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))	
 	var image = new Image();
 	image.src = data.img;
 	image.onload = function(){
 		$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
 	}
+	displayUser(data);
+	msgNum();
 })
 
 

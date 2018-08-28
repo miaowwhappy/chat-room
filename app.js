@@ -11,6 +11,14 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/gesture', function (req, res) {
+  res.sendFile(__dirname + '/gesture.html');
+});
+
+app.get('/up', function (req, res) {
+  res.sendFile(__dirname + '/up.html');
+});
+
 
 var users = [];
 
@@ -82,6 +90,7 @@ io.on('connection', function (socket) {
 	  	//发送者id
 	  	data.userId = user.id;
 	  	data.username = user.username;
+      data.users = users;
 	  	socket.emit("one2one_send_success", data);
 		io.sockets.to(id).emit('receive_message', data);
 	}else{		
@@ -93,6 +102,7 @@ io.on('connection', function (socket) {
 	  	var { id } = data;
 	  	data.userId = user.id;
 	  	data.username = user.username;
+      data.users = users;
 		socket.emit("one2one_sendPic_success", data);
 		io.sockets.to(id).emit('receive_pic', data);
   	}else{		
