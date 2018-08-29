@@ -400,7 +400,7 @@ function loadImg(imgFile){
 		newImage.src = e.target.result;
 	};
 	reader.readAsDataURL(imgFile);
-}
+};
 /* 点击保存	*/
 (function(){
 	var saveBtn = document.querySelector('#saveBtn');
@@ -492,4 +492,670 @@ function drag(init){
 			init.end&&init.end.call(el,e);
 		}
 	});
+};
+
+
+var roomDia = [];
+
+var socket = io.connect();
+var userId = '';
+var name = "";
+var dialogObj = {};
+var avatarData = '/static/user.jpg';
+
+//登录
+$(".loginBtn").click(function(){
+	name = $(".name").val();
+	if(!name){
+		alert('请输入登录用名')
+		return
+	}
+	userId = socket.id;
+
+	socket.emit('login', {username: name,id: socket.id, avatarData});				
+})
+//发送图片
+$("#file").change(function(){
+	var file = this.files[0];
+	if(file.size/1024 > 40){ //大于40kb
+		photoCompress(
+			file,
+			{
+				quality: 0.6,
+				width: 260
+			},
+			function(base64){
+				emitPic(base64)
+			}
+		)
+	}else{
+		var reader = new FileReader();
+		reader.readAsDataURL(file)
+		reader.onerror = function(){
+			console.log('读取文件失败，请重试！')
+		}
+		reader.onload = function() {
+			var src = reader.result;
+			emitPic(src)
+		}
+	}
+
+	function emitPic(src) {
+		socket.emit('sendPic',{
+			img: src,
+			avatarData
+		})
+		$("#file").val("")
+	}
+
+	
+})
+
+//自己登录成功
+socket.on('user_login_success',function(data){
+	$(".login-box").hide()
+	$(".room-box").css("display","flex")
+	name = $(".name").val();
+	displayUser(data)
+})
+//自己登录失败
+socket.on('login_fail',function(msg){
+	alert("用户已存在")
+})
+//登录成功提醒
+socket.on('login_success',function(data){
+	var html = `<div class="sys-msg">
+					<span>系统消息：${data.user.username}已加入群聊</span>
+				</div>`
+	roomDia.push(html);
+
+	$(".chat-bar").html(roomDia.join(''))
+	$(".view").scrollTop($(".chat-bar").height())
+	displayUser(data)
+})
+
+//退出成功提醒
+socket.on('logout_success',function(data){
+	var html = `<div class="sys-msg">
+					<span>缪文文提醒：${data.user.username}已退出群聊</span>
+				</div>`
+	roomDia.push(html);
+
+	$(".chat-bar").html(roomDia.join(''))
+	$(".view").scrollTop($(".chat-bar").height())
+	displayUser (data)
+	//用户为当前用户返回登录页
+	if(data.user.username == name){
+		$(".login-box").show()
+		$(".room-box").hide()
+		name = null
+	}
+})
+//？
+socket.on("logout",function(){
+	//貌似不会走这步
+	$(".login-box").show()
+	$(".room-box").hide()
+	$(".one2one-box").hide()
+	$(".menu").hide()
+	name = null
+})
+//？
+socket.on("user_logout",function(){
+	$(".login-box").show()
+	$(".room-box").hide()
+	$(".one2one-box").hide()
+	$(".menu").hide()
+	name = null
+})
+
+
+
+function displayUser (data) {
+	var {users} = data;
+	var len = users.length;
+	$(".userNum").html(len);
+	var html = "";
+	for (var i = 0; i < len; i++) {
+		if(users[i].username == name){
+			html += `<li data-id="${users[i].id}">
+						<img src="${users[i].avatarData}">
+						<span class="name">${users[i].username}</span>
+						<span class="dot"></span>
+					</li>`
+			continue
+		}
+
+		if(dialogObj[users[i].id]&&dialogObj[users[i].id].unread > 0){
+
+			html += `<li data-id="${users[i].id}">
+				<img src="${users[i].avatarData}">
+				<span class="name">${users[i].username}</span>
+				<span class="num ico">
+					<i class="iconfont">&#xe631;</i>
+					<span>${dialogObj[users[i].id].unread}</span>
+				</span>
+			</li>`
+		}else{
+			html += `<li data-id="${users[i].id}">
+					<img src="${users[i].avatarData}">
+					<span class="name">${users[i].username}</span>
+				</li>`
+		}
+		
+	}
+	$(".user-list").html(html)
 }
+
+function createTextLi(data,pos) {
+	if(data.img){
+		console.log(data)
+		if(pos === 'right'){
+			
+			return `<div class="chat-li right-li">
+						<img src="${data.avatarData}">
+						<div class="message-box">
+							<div class="img-box">
+								<img src="${data.img}">
+							</div>
+						</div>
+					</div>`
+		}else if(pos === 'left'){
+			return `<div class="chat-li left-li">
+						<img src="${data.avatarData}">
+						<div class="message-box">
+							<p>${data.username}</p>
+							<div class="message-box">
+								<div class="img-box">
+									<img src="${data.img}">
+								</div>
+							</div>
+						</div>
+					</div>`
+		}
+	}else{
+		var newVal = data.val.replace(/\[(\d+)\]/g,function(match,p1){
+			return '<img src="/static/emoji/emoji ('+p1+').png">'
+		})
+		if(pos === 'right'){
+			
+			
+			return `<div class="chat-li right-li">
+						<img src="${data.avatarData}">
+						<div class="message-box">
+							<div class="msg" style="color:${data.color}">
+								${newVal}
+							</div>
+						</div>
+					</div>`
+		}else if(pos === 'left'){
+			return `<div class="chat-li left-li">
+						<img src="${data.avatarData}">
+						<div class="message-box">
+							<p>${data.username}</p>
+							<div class="msg" style="color:${data.color}">
+								${newVal}
+							</div>
+						</div>
+					</div>`
+		}
+	}
+}
+//提示消息
+function msgNum(){
+	var len = 0;
+	for(key in dialogObj){
+		if(dialogObj[key].unread){
+			len += dialogObj[key].unread
+		}
+	}
+
+	if(len > 0){
+		$(".msg-num").show();
+		$(".msg-num span").text(len)
+	}else{
+		$(".msg-num").hide();
+	}
+};
+
+
+//发送消息
+$(".sendBtn").click(function(){
+	var val = $(".send").val();
+	if(!val){
+		return
+	}
+	var color = $("#color").val();		
+	socket.emit('send', {val: val, color: color, avatarData: avatarData});
+	$(".send").val(''); 
+
+});
+
+
+//接收自己发送的消息
+socket.on("send_success",function(data){
+	
+	roomDia.push(createTextLi(data,'right'));
+
+	$(".chat-bar").html(roomDia.join(''))
+	$(".view").scrollTop($(".chat-bar").height())
+});
+//接收其他人发送的消息
+socket.on("boradcast",function(data){
+
+	roomDia.push(createTextLi(data,'left'));
+
+	$(".chat-bar").html(roomDia.join(''))
+	$(".view").scrollTop($(".chat-bar").height())
+});
+
+//接收自己发送的图片		
+socket.on("sendPic_success",function(data){
+	var html = createTextLi(data,'right');
+
+	roomDia.push(html);
+
+	$(".chat-bar").html(roomDia.join(''))
+	//图片加载完再滚动条到底部
+	var image = new Image();
+	image.src = data.img;
+	image.onload = function(){
+		$(".view").scrollTop($(".chat-bar").height())
+	}
+	
+});
+//接收其他人发送的图片
+socket.on("boradcastPic",function(data){
+	var html = createTextLi(data,'left');
+	roomDia.push(html);
+	
+	$(".chat-bar").html(roomDia.join(''));
+	var image = new Image();
+	image.src = data.img;
+	image.onload = function(){
+		$(".view").scrollTop($(".chat-bar").height())
+	}
+});
+
+
+//图片太多没返回会断,图片太多，做了js压缩	
+
+$(".user-list").on("click","li",function(){
+	var username = $(this).find('.name').text();
+	var id = $(this).attr("data-id");
+
+	if(username != name){
+		$(".one2one-box").css({"display":"flex"}).attr("data-id",id).addClass('scale');
+		setTimeout(function(){
+			$(".one2one-box").removeClass("scale")
+		},500)
+		$(".one2one-top-title .text").text("与"+username+"聊天")
+
+		if(dialogObj[id]){
+			$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
+		}else{
+			$(".one2one-chat-bar").html("")
+		}
+		
+	}
+});
+//关闭个人聊天窗口
+$(".one2one-top-title i").click(function(){
+	$(".one2one-box").removeClass("scale").addClass("scaleBack");
+
+	setTimeout(function(){
+		$(".one2one-box").css("display","none").removeClass("scaleBack")
+	},500)
+
+	var id = $(".one2one-box").attr("data-id");
+	if(dialogObj[id]){
+		dialogObj[id].unread = 0
+		$(".user-list li[data-id="+id+"]").find(".num").remove()
+	}
+
+	msgNum();
+
+	
+});
+
+//发送消息
+$(".one2one-sendBtn").click(function(){
+	var val = $(".one2one-send").val();
+	if(!val){
+		return
+	}
+  
+	var color = $("#one2one-color").val();	
+	var id = $(".one2one-box").attr("data-id");	
+	socket.emit('one2one_send', {val, color, id, avatarData});
+	$(".one2one-send").val(''); 
+
+});
+//接收自己发送的消息
+socket.on("one2one_send_success",function(data){
+	
+	var html = createTextLi(data,'right')
+	//roomDia.push(html);
+
+	var id = data.id;
+	if(dialogObj[id]){
+		dialogObj[id].dialog.push(html)
+	}else{
+		dialogObj[id] = {};
+		dialogObj[id].unread = 0;
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
+	}
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
+	$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
+});
+//接收one2one发送的消息
+socket.on("receive_message",function(data){
+	var html = createTextLi(data,'left')
+	//roomDia.push(html);
+	var id = data.userId;	
+	if(dialogObj[id]){
+		dialogObj[id].dialog.push(html)
+		dialogObj[id].unread += 1;
+	}else{
+		dialogObj[id] = {};
+		dialogObj[id].unread = 1;
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
+	}
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
+	$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
+	displayUser(data);
+	msgNum();
+});
+
+//发送图片
+$("#one2one-file").change(function(){
+	var id = $(".one2one-box").attr("data-id");	
+
+	var file = this.files[0];
+	if(file.size/1024 > 40){ //大于40kb
+		photoCompress(
+			file,
+			{
+				quality: 0.6,
+				width: 260
+			},
+			function(base64){
+				emitPic(base64)
+			}
+		)
+	}else{
+		var reader = new FileReader();
+		reader.readAsDataURL(file)
+		reader.onerror = function(){
+			console.log('读取文件失败，请重试！')
+		}
+		reader.onload = function() {
+			var src = reader.result;
+			emitPic(src)
+		}
+	}
+
+	function emitPic(src) {
+		socket.emit('one2one_sendPic',{
+			img: src,
+			id: id,
+			avatarData
+		})
+		$("#one2one-file").val("")
+	}	
+});
+
+
+//接收自己发送的图片		
+socket.on("one2one_sendPic_success",function(data){
+	var html = createTextLi(data,'right');
+
+	var id = data.id;
+	if(dialogObj[id]){
+		dialogObj[id].dialog.push(html)
+	}else{
+		dialogObj[id] = {};
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
+	}
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))
+
+	//图片加载完再滚动条到底部
+	var image = new Image();
+	image.src = data.img;
+	image.onload = function(){
+		$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
+	}
+	
+});
+//接收其他人发送的图片
+socket.on("receive_pic",function(data){
+	var html = createTextLi(data,'left');
+
+	var id = data.userId;	
+	if(dialogObj[id]){
+		dialogObj[id].dialog.push(html)
+		dialogObj[id].unread += 1;
+	}else{
+		dialogObj[id] = {};
+		dialogObj[id].unread = 1;
+		dialogObj[id].dialog = [];
+		dialogObj[id].dialog.push(html)
+	}
+	$(".one2one-chat-bar").html(dialogObj[id].dialog.join(""))	
+	var image = new Image();
+	image.src = data.img;
+	image.onload = function(){
+		$(".one2one-view").scrollTop($(".one2one-chat-bar").height())
+	}
+	displayUser(data);
+	msgNum();
+});
+
+
+//emoji图片
+var html = '';
+for (var i = 1; i < 142; i++) {
+	html += '<img src="/static/emoji/emoji ('+i+').png">'
+	$('.emoji-box').html(html)
+	$('.one2one-emoji-box').html(html)
+};
+$(".emoji-click").click(function(){
+	$(".emoji-box").css("display","flex")
+});
+$(".one2one-emoji-click").click(function(){
+	$(".one2one-emoji-box").css("display","flex")
+});
+$(".emoji-box").on("click","img",function(){
+	var reg = /\((\d+)\)/
+	reg.test(this.src)
+	var num = RegExp.$1
+	$(".send").val($(".send").val()+"["+num+"]")
+	$(".emoji-box").css("display","none")
+});
+$(".one2one-emoji-box").on("click","img",function(){
+	var reg = /\((\d+)\)/
+	reg.test(this.src)
+	var num = RegExp.$1
+	$(".one2one-send").val($(".one2one-send").val()+"["+num+"]")
+	$(".one2one-emoji-box").css("display","none") 
+});
+
+$("#color").change(function(){
+ 	var color = $("#color").val();
+ 	$(".font").css("color",color);
+});
+$("#one2one-color").change(function(){
+ 	var color = $("#one2one-color").val();
+ 	$(".one2one-font").css("color",color);
+});
+
+
+/*
+    三个参数
+    file：一个是文件(类型是图片格式)，
+    obj：{
+        width: '',默认图片原始宽
+        height: '',默认图片原始高
+        quality: 0.7 默认,canvas转的图片质量
+    }
+    callback：回调函数(第一个参数是base64)
+*/
+
+function photoCompress(file,obj,callback){
+    var ready=new FileReader();
+    ready.readAsDataURL(file);
+    ready.onload=function(){
+        var re=this.result;
+        canvasDataURL(re,obj,callback)
+    }
+};
+
+function canvasDataURL(path, obj, callback){
+    var img = new Image();
+    img.src = path;
+    img.onload = function(){
+        var that = this;
+        // 默认按比例压缩
+        var w = that.width,
+            h = that.height,
+            scale = w / h;
+        w = obj.width || w;
+        h = (obj.width / scale) || (w / scale);
+        var quality = 0.7;  // 默认图片质量为0.7
+        //生成canvas
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        // 创建属性节点
+        var anw = document.createAttribute("width");
+        anw.nodeValue = w;
+        var anh = document.createAttribute("height");
+        anh.nodeValue = h;
+        canvas.setAttributeNode(anw);
+        canvas.setAttributeNode(anh);
+        ctx.drawImage(that, 0, 0, w, h);
+        // 图像质量 
+        if(obj.quality && obj.quality <= 1 && obj.quality > 0){
+            quality = obj.quality;
+        }
+        // quality值越小，所绘制出的图像越模糊
+        var base64 = canvas.toDataURL('image/jpeg', quality);
+        //var bolb = convertBase64UrlToBlob(base64)
+        // 回调函数返回base64的值
+        //console.log(bolb)
+        callback(base64);
+    }
+};
+function convertBase64UrlToBlob(urlData){
+    var arr = urlData.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type:mime});
+};
+
+var w = $(".menu").width();
+var flag = false;
+var menuIsOpen = false;
+var goBack = false;
+
+
+$(".top-title").click(function(){
+	if(menuIsOpen){
+		menuClose()
+	}else{
+		menuOpen()
+	}	
+});
+$(".view").click(function(){
+	if(menuIsOpen){
+		menuClose()
+	}
+});
+function menuOpen(){
+	$(".menu").animate({"left": 0})
+	$(".room-box").animate({"left": w + "px"},function(){
+		menuIsOpen = true
+		$("#img").attr("src","/static/right.png")
+	})		
+	
+};
+function menuClose(){
+	$(".menu").animate({"left": -w + "px"})
+	$(".room-box").animate({"left": 0},function(){
+		$("#img").attr("src","/static/left.png")
+		menuIsOpen = false
+	})		
+};
+
+
+var startX = 0;
+var startY = 0;
+var dir = {
+	x: false,
+	y: false
+};
+var isFirst = true;
+
+$("body").on("touchstart",function(e){
+	startX = e.targetTouches[0].clientX;
+	startY = e.targetTouches[0].clientY;
+	if((startX < 5 && $(".login-box").css("display") == "none") || menuIsOpen){
+		flag = true;
+	}	
+	
+	if(e.target.className == "menu" && menuIsOpen){
+		goBack = true;
+	}	
+});
+
+$("body").on("touchmove",function(e){
+	if(!flag){
+		return
+	}			
+	var nowX = e.targetTouches[0].clientX;
+	var nowY = e.targetTouches[0].clientY;
+	var dis = nowX - startX;
+
+	if(isFirst){
+		if(Math.abs(nowX-startX) > Math.abs(nowY-startY)){
+			dir.x = true;
+			isFirst = false;			
+		}else{
+			dir.y = true;
+			isFirst = false;
+		}
+	}
+	if(dir.x){
+		if(goBack){
+			$(".menu").css({"left": (0 + dis > 0 ? 0 : dis) + "px"})
+			$(".room-box").css({"left": (w + dis > w ? w : w + dis) + "px"})
+		}else{
+			$(".menu").css({"left": (nowX - w < 0 ? nowX - w : 0) + "px"})
+			$(".room-box").css({"left": (nowX < w ? nowX : w) + "px"})
+		}
+	}
+	
+});
+$("body").on("touchend",function(e){
+	isFirst = true;
+
+	if(flag&&dir.x){
+		var endX = e.changedTouches[0].clientX;
+		var scale = (w - endX) / w;
+
+		flag = false;
+		goBack = false;
+		dir.x = false;
+
+		if(scale < 0.2){
+			menuOpen&&menuOpen.call(this)
+		}else{
+			menuClose&&menuClose.call(this)
+		}
+	}
+	
+});

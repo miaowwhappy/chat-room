@@ -23,7 +23,7 @@ $(".one2one-emoji-box").on("click","img",function(){
 	reg.test(this.src)
 	var num = RegExp.$1
 	$(".one2one-send").val($(".one2one-send").val()+"["+num+"]")
-	$(".one2one-emoji-box").css("display","none")
+	$(".one2one-emoji-box").css("display","none") 
 })
 
 $("#color").change(function(){
